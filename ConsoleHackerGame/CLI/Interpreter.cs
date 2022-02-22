@@ -15,41 +15,47 @@ namespace ConsoleHackerGame.CLI
 
         public bool Parse(string line)
         {
-            string[] lineSegments = line.Replace(Program.Prompt, string.Empty).Trim(' ').Split(' ');
+            line = line.Replace(Program.Prompt, string.Empty).Trim(' ');
+
+            string[] commands = line.Split(';'); 
            
-            if (lineSegments?.Length > 0)
+            foreach(string command in commands)
             {
-                string cmdName = lineSegments[0];
+                string[] cmdSegments = command.Trim(' ').Split(' ');
 
-                if (cmdName == string.Empty)
-                    return true;
+                if (cmdSegments?.Length > 0)
+                {
+                    string cmdName = cmdSegments[0];
 
-                if (!Commands.TryGetCMD(cmdName, out var cmd))
-                {
-                    Console.WriteLine($"Command '{cmdName}' not found.");
-                    return false;
-                }
+                    if (cmdName == string.Empty)
+                        continue;
 
-                if (line.Contains("-h"))
-                {
-                    Commands.Help.Invoke(new string[] { cmd.Name });
-                    return true;
-                }
+                    if (!Commands.TryGetCMD(cmdName, out var cmd))
+                    {
+                        Console.WriteLine($"Command '{cmdName}' not found.");
+                        return false;
+                    }
 
-                try
-                {
-                    cmd.Invoke(lineSegments.Skip(1).ToArray());
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    Log.Error("Command Error: " + e.Message);
-                    if (line.Contains("-v"))
-                        Log.Error(e.StackTrace);
+                    if (command.Contains("-h"))
+                    {
+                        Commands.Help.Invoke(new string[] { cmd.Name });
+                        continue;
+                    }
+
+                    try
+                    {
+                        cmd.Invoke(cmdSegments.Skip(1).ToArray());
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error("Command Error: " + e.Message);
+                        if (command.Contains("-v"))
+                            Log.Error(e.StackTrace);
+                    }
                 }
             }
 
-            return false;
+            return true;
         }
     }
 }
