@@ -29,14 +29,14 @@ namespace ConsoleHackerGame
 
         static void Main(string[] args)
         {
-            Commands.ShowTitle.Invoke(args);
+            Commands.ShowTitle.Invoke(args); // args doesnt matter here
 
             Interpreter = new Interpreter();
 
             while (!quitting)
             {
                 Console.Write(Prompt);
-                Interpreter.TryParse(Console.ReadLine());
+                Interpreter.Parse(Console.ReadLine());
             }
         }
 

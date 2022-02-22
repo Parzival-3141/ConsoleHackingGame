@@ -10,15 +10,20 @@ namespace ConsoleHackerGame
     {
         public readonly List<CMD> cmds = new List<CMD>()
         {
-            new CMD("quit", (args) => Commands.Quit(args), "Quits the application."),
+            new CMD("quit" , (args) => Commands.Quit(args), "Quits the application."),
             new CMD("clear", (args) => Console.Clear(), "Clears the console."),
-            new CMD("echo", (args) => Commands.Echo(args), "Prints the arguements to the console."),
-            new CMD("expr", (args) => Commands.Expr(args), "Evaluate integer expressions."),
-            new CMD("help", (args) => Commands.Help(args), "List all Commands."),
+            new CMD("echo" , (args) => Commands.Echo(args), "Prints the arguments to the console."),
+            new CMD("expr" , (args) => Commands.Expr(args), "Evaluate integer expressions."),
+            new CMD("help" , (args) => Commands.Help(args), "List all Commands."),
             new CMD("title", (args) => Commands.ShowTitle(args), "Prints the title screen."),
         };
 
-        public bool TryParse(string line)
+        public Interpreter()
+        {
+            cmds.Sort(new Comparison<CMD>((c1, c2) => string.Compare(c1.Name, c2.Name)));
+        }
+
+        public bool Parse(string line)
         {
             string[] lineSegments = line.Replace(Program.Prompt, string.Empty).Trim(' ').Split(' ');
            
