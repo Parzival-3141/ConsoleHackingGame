@@ -29,12 +29,13 @@ namespace ConsoleHackerGame
                 if (cmdName == string.Empty)
                     return true;
 
-                CMD cmd = cmds.Find((c) => c.Name == cmdName);
-
-                if(cmd == null)
-                {
-                    Console.WriteLine($"Command '{cmdName}' not found.");
+                if (!TryGetCMD(cmdName, out var cmd))
                     return false;
+
+                if (line.Contains("-h"))
+                {
+                    Commands.Help.Invoke(new string[] { cmd.Name });
+                    return true;
                 }
 
                 try
@@ -52,6 +53,19 @@ namespace ConsoleHackerGame
             }
 
             return false;
+        }
+
+        public bool TryGetCMD(string name, out CMD cmd)
+        {
+            cmd = cmds.Find((c) => c.Name == name);
+
+            if (cmd == null)
+            {
+                Console.WriteLine($"Command '{name}' not found.");
+                return false;
+            }
+
+            return true;
         }
 
 

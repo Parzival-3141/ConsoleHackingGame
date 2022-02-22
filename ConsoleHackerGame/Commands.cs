@@ -71,7 +71,19 @@ namespace ConsoleHackerGame
                 return 0;
             }
 
-            string expr = args.Aggregate((s1, s2) => s1 + s2);
+            //string expr = args.Aggregate((s1, s2) => s1 + s2);
+            string expr = string.Empty;
+
+            foreach(var s in args)
+            {
+                if (s.Any((c) => char.IsLetter(c)))
+                {
+                    continue;
+                }
+
+                expr += s;
+            }
+
 
             Stack<int> values = new Stack<int>();
             Stack<char> operators = new Stack<char>();
@@ -141,13 +153,24 @@ namespace ConsoleHackerGame
 
         public static CMDMethod Help => (args) =>
         {
-            Console.WriteLine("------------------------------------------------");
+            List<Interpreter.CMD> cmds = new List<Interpreter.CMD>();
+            bool showAllCMDs = false;
 
-            var cmds = Program.Interpreter.cmds;
+            if (args.Length > 0 && Program.Interpreter.TryGetCMD(args[0], out var cmd))
+            {
+                cmds.Add(cmd);
+            }
+            else
+            {
+                cmds = Program.Interpreter.cmds;
+                showAllCMDs = true;
+            }
 
-            string indent = @"    ";
+            if(showAllCMDs)
+                Console.WriteLine("------------------------------------------------");
+
             int gapLength = 12;
-
+            string indent = @"    ";
             for (int i = 0; i < cmds.Count; i++)
             {
                 string gap = "";
@@ -156,12 +179,11 @@ namespace ConsoleHackerGame
                     gap += " ";
                 }
 
-
                 Console.WriteLine(indent + cmds[i].Name + gap + cmds[i].InfoText);
-                //Console.WriteLine($"    {cmds[i].Name}        {cmds[i].InfoText}");
             }
 
-            Console.WriteLine("------------------------------------------------");
+            if(showAllCMDs)
+                Console.WriteLine("------------------------------------------------");
         };
 
         public static CMDMethod ShowTitle = (args) =>
