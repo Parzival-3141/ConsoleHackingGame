@@ -29,13 +29,34 @@ Nodes/Devices/Systems:
 	- Contains data files (IRC, logs, apps, etc.)
 	- Contains sensitive info (personal info, financial info, passwords, etc.)
 	- 
+	- Some Devices don't have internal storage, and files must be loaded into memory instead. 
+		- Would make for a good puzzle.
 
 
 Player:
 	- 
 
 CLI:
-	- 
+	- "netmap"/"network" cmd that opens up a new terminal window displaying all available devices on a network graphically.
+
+
+
+	
+╱╱╱╭╮
+╱╱╭╯╰╮
+╭━┻╮╭╋━━┳━┳╮╱╭╮
+┃━━┫┃┃╭╮┃╭┫┃╱┃┃
+┣━━┃╰┫╰╯┃┃┃╰━╯┃
+╰━━┻━┻━━┻╯╰━╮╭╯
+╱╱╱╱╱╱╱╱╱╱╭━╯┃
+╱╱╱╱╱╱╱╱╱╱╰━━╯
+	
+
+	Ideas:
+		- Final 'Boss' is a semi(?) sentient AI developed by a major tech Corporation. Have a philosophical discussion and try to disable it(?)
+			- AI controls
+			- Kinda like Neuromancer
+
 
 
 

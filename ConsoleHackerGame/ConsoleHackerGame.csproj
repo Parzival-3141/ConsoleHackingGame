@@ -43,11 +43,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CLI\CMD.cs" />
     <Compile Include="CLI\Commands.cs" />
     <Compile Include="CLI\Interpreter.cs" />
     <Compile Include="Network\NetworkedDevice.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Log.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

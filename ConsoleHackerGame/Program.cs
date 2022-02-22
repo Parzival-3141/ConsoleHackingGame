@@ -9,7 +9,6 @@ namespace ConsoleHackerGame
 {
     public static class Program
     {
-        public const string Prompt = ">";
         public const string Title = @"
 ------------------------------------------------
 
@@ -23,29 +22,32 @@ namespace ConsoleHackerGame
               created by Parzival
 ------------------------------------------------
 ";
+        private const string PromptHeader = ">";
 
         public static bool quitting = false;
+        public static string Prompt;
+
+        public static bool echo = true;
 
         public static Interpreter Interpreter { get; private set; }
 
         static void Main(string[] args)
         {
-            Commands.ShowTitle.Invoke(args); // args doesnt matter here
-
             Interpreter = new Interpreter();
 
+            Commands.ShowTitle.Invoke(args); // args doesnt matter here
+            
+            //  Gameloop
             while (!quitting)
             {
-                Console.Write(Prompt);
+                //Prompt = CurrentUser + CurrentDirectory;
+                Prompt = PromptHeader;
+                
+                if(echo)
+                    Console.Write(Prompt);
+                
                 Interpreter.Parse(Console.ReadLine());
             }
-        }
-
-        public static void WriteError(string error)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(error);
-            Console.ResetColor();
         }
     }
 }

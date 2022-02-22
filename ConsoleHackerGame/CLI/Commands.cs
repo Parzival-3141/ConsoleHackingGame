@@ -8,16 +8,65 @@ namespace ConsoleHackerGame.CLI
 {
     public static class Commands
     {
+        public static readonly List<CMD> cmds = new List<CMD>()
+        {
+            new CMD("quit" , (args) => Quit(args), "Quits the application."),
+            new CMD("clear", (args) => Console.Clear(), "Clears the console."),
+            new CMD("echo" , (args) => Echo(args), "Prints the arguments to the console."),
+            new CMD("expr" , (args) => Expr(args), "Evaluate integer expressions.", "expr <expression...>"),
+            new CMD("help" , (args) => Help(args), "Displays information about commands.", "help <command> | command [-h]"),
+            new CMD("title", (args) => ShowTitle(args), "Prints the title screen."),
+        };
+
+        #region CMD Methods
+
+        public static void SortCMDs()
+        {
+            cmds.Sort(new Comparison<CMD>((c1, c2) => string.Compare(c1.Name, c2.Name)));
+        }
+
+        public static CMD GetCMD(string name)
+        {
+            return cmds.Find((c) => c.Name == name);
+        }
+
+        public static bool TryGetCMD(string name, out CMD cmd)
+        {
+            cmd = GetCMD(name);
+
+            if (cmd == null)
+                return false;
+
+            return true;
+        }
+
+        #endregion
+
+        #region CMD Implementations
+
         public delegate void CMDMethod(string[] args);
 
         public static CMDMethod Echo => (args) =>
         {
-            string output = "";
-            foreach (var s in args)
+            if(args.Length == 1)
             {
-                output += s + ' ';
+                switch (args[0].ToLowerInvariant())
+                {
+                    case "on":  Program.echo = true;  return;
+                    case "off": Program.echo = false; return;
+                    default: break;
+                }
             }
-            Console.WriteLine(output);
+
+            if (Program.echo)
+            {
+                string output = "";
+                foreach (var s in args)
+                {
+                    output += s + ' ';
+                }
+                Console.WriteLine(output);
+            }
         };
 
         public static CMDMethod Quit => (args) =>
@@ -73,6 +122,12 @@ namespace ConsoleHackerGame.CLI
 
             //string expr = args.Aggregate((s1, s2) => s1 + s2);
             string expr = string.Empty;
+
+            if (args.Length < 1)
+            {
+                Console.WriteLine("An expression is required.");
+                return;
+            }
 
             foreach(var s in args)
             {
@@ -153,16 +208,16 @@ namespace ConsoleHackerGame.CLI
 
         public static CMDMethod Help => (args) =>
         {
-            List<Interpreter.CMD> cmds = new List<Interpreter.CMD>();
+            List<CMD> cmds = new List<CMD>();
             bool showAllCMDs = false;
 
-            if (args.Length > 0 && Program.Interpreter.TryGetCMD(args[0], out var cmd))
+            if (args.Length > 0 && TryGetCMD(args[0], out var cmd))
             {
                 cmds.Add(cmd);
             }
             else
             {
-                cmds = Program.Interpreter.cmds;
+                cmds = Commands.cmds;
                 showAllCMDs = true;
             }
 
@@ -173,13 +228,12 @@ namespace ConsoleHackerGame.CLI
             string indent = @"    ";
             for (int i = 0; i < cmds.Count; i++)
             {
-                string gap = "";
-                for (int j = 0; j < gapLength - cmds[i].Name.Length; j++)
-                {
-                    gap += " ";
-                }
+                var gap = new string(' ', gapLength - cmds[i].Name.Length);
 
                 Console.WriteLine(indent + cmds[i].Name + gap + cmds[i].InfoText);
+                
+                if (!showAllCMDs)
+                    Console.WriteLine(indent + new string(' ', gapLength) + cmds[i].HelpText);
             }
 
             if(showAllCMDs)
@@ -190,5 +244,12 @@ namespace ConsoleHackerGame.CLI
         {
             Console.Write(Program.Title + "\n");
         };
+
+        public static CMDMethod SystemInfo = (args) =>
+        {
+            Log.Warning("SystemInfo goes here.");
+        };
+
+        #endregion
     }
 }
