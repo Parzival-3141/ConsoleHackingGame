@@ -14,19 +14,18 @@ namespace ConsoleHackerGame.CLI
             SortCMDs();
         }
 
-
         public static readonly List<CMD> cmds = new List<CMD>()
         {
             new CMD("quit"      , (args) => Quit(args), "Quits the application."),
             new CMD("clear"     , (args) => Console.Clear(), "Clears the console."),
-            new CMD("echo"      , (args) => Echo(args), "Prints the text to the console.", "echo [text...]"),
+            new CMD("echo"      , (args) => Echo(args), "Prints text to the console.", "echo {on|off} [text ...]"),
             new CMD("expr"      , (args) => Expr(args), "Evaluate integer expressions.", "expr <expression>"),
             new CMD("help"      , (args) => Help(args), "Displays information about commands.", "help <command> | command [-h]"),
             new CMD("title"     , (args) => ShowTitle(args), "Prints the title screen."),
-            new CMD("whoami"    , (args) => WhoAmI(args), "Prints the Name and IP of the current Device."),
-            new CMD("sysinfo"   , (args) => SystemInfo(args), "Prints information about the current Device."),
-            new CMD("connect"   , (args) => Connect(args), "Connect to a remote IP address.", "connect <IP>"),
-            new CMD("disconnect", (args) => Disconnect(args), "Disconnect from a remote IP address"),
+            new CMD("whoami"    , (args) => WhoAmI(args), "Displays the name and IP of the current host."),
+            new CMD("sysinfo"   , (args) => SystemInfo(args), "Displays information about the current host."),
+            new CMD("connect"   , (args) => Connect(args), "Connect to a remote host.", "connect <IP>"),
+            new CMD("disconnect", (args) => Disconnect(args), "Disconnect from a remote host"),
             new CMD("ls"        , (args) => LS(args), "Displays a list of files and subfolders in a directory"),
             new CMD("cd"        , (args) => CD(args), "Changes the working directory", "cd <path>\n\nuse '..' to go up a directory"),
         };
@@ -238,8 +237,8 @@ namespace ConsoleHackerGame.CLI
 
             if(showAllCMDs)
                 Console.WriteLine("------------------------------------------------");
-
-            int gapLength = 12;
+            
+            int gapLength = 16;
             string indent = @"    ";
             for (int i = 0; i < cmds.Count; i++)
             {
@@ -251,8 +250,12 @@ namespace ConsoleHackerGame.CLI
                     Console.WriteLine(indent + new string(' ', gapLength) + cmds[i].HelpText);
             }
 
-            if(showAllCMDs)
+            if (showAllCMDs)
+            {
+                Console.WriteLine();
+                Console.WriteLine(indent + "Use 'command -h' for more info on the command");
                 Console.WriteLine("------------------------------------------------");
+            }
         };
 
         public static CMDMethod ShowTitle = (args) =>
