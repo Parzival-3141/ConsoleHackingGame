@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConsoleHackerGame.Network 
+namespace ConsoleHackerGame.Network
 {
     public abstract class NetworkedDevice
     {
-        /*
+        /*  Notes
          *  Contains:
          *      - FileSystem
          *          - Misc files & data
@@ -33,12 +33,13 @@ namespace ConsoleHackerGame.Network
          * 
          */
 
+        public string Name { get; protected set; }
         public string IP { get; protected set; }
-        public List<string> LinkedIPs { get; protected set; }
-        //public FileSystem FileSystem { get; protected set; }
+        public List<NetworkedDevice> LinkedDevices { get; protected set; } = new List<NetworkedDevice>(); // for netmap or for local network?
+        internal Files.FileSystem FileSystem { get; private protected set; }
         public int TotalRAM { get; protected set; }
         public int AvailableRAM { get => TotalRAM - UsedRAM; }
 
-        protected int UsedRAM;
+        protected int UsedRAM = 0;
     }
 }

@@ -2,20 +2,33 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ConsoleHackerGame.CLI
 {
     public static class Commands
     {
+        static Commands()
+        {
+            SortCMDs();
+        }
+
+
         public static readonly List<CMD> cmds = new List<CMD>()
         {
-            new CMD("quit" , (args) => Quit(args), "Quits the application."),
-            new CMD("clear", (args) => Console.Clear(), "Clears the console."),
-            new CMD("echo" , (args) => Echo(args), "Prints the arguments to the console."),
-            new CMD("expr" , (args) => Expr(args), "Evaluate integer expressions.", "expr <expression...>"),
-            new CMD("help" , (args) => Help(args), "Displays information about commands.", "help <command> | command [-h]"),
-            new CMD("title", (args) => ShowTitle(args), "Prints the title screen."),
+            new CMD("quit"      , (args) => Quit(args), "Quits the application."),
+            new CMD("clear"     , (args) => Console.Clear(), "Clears the console."),
+            new CMD("echo"      , (args) => Echo(args), "Prints the text to the console.", "echo [text...]"),
+            new CMD("expr"      , (args) => Expr(args), "Evaluate integer expressions.", "expr <expression>"),
+            new CMD("help"      , (args) => Help(args), "Displays information about commands.", "help <command> | command [-h]"),
+            new CMD("title"     , (args) => ShowTitle(args), "Prints the title screen."),
+            new CMD("whoami"    , (args) => WhoAmI(args), "Prints the Name and IP of the current Device."),
+            new CMD("sysinfo"   , (args) => SystemInfo(args), "Prints information about the current Device."),
+            new CMD("connect"   , (args) => Connect(args), "Connect to a remote IP address.", "connect <IP>"),
+            new CMD("disconnect", (args) => Disconnect(args), "Disconnect from a remote IP address"),
+            new CMD("ls"        , (args) => LS(args), "Displays a list of files and subfolders in a directory"),
+            new CMD("cd"        , (args) => CD(args), "Changes the working directory", "cd <path>\n\nuse '..' to go up a directory"),
         };
 
         #region CMD Methods
@@ -46,7 +59,7 @@ namespace ConsoleHackerGame.CLI
 
         public delegate void CMDMethod(string[] args);
 
-        public static CMDMethod Echo => (args) =>
+        public static CMDMethod Echo = (args) =>
         {
             if(args.Length == 1)
             {
@@ -69,7 +82,7 @@ namespace ConsoleHackerGame.CLI
             }
         };
 
-        public static CMDMethod Quit => (args) =>
+        public static CMDMethod Quit = (args) =>
         {
             void AwaitYNInput()
             {
@@ -95,7 +108,7 @@ namespace ConsoleHackerGame.CLI
             AwaitYNInput();
         };
 
-        public static CMDMethod Expr => (args) =>
+        public static CMDMethod Expr = (args) =>
         {
             int Operation(int num1, int num2, char @operator)
             {
@@ -206,7 +219,7 @@ namespace ConsoleHackerGame.CLI
             Console.WriteLine(values.Peek());
         };
 
-        public static CMDMethod Help => (args) =>
+        public static CMDMethod Help = (args) =>
         {
             List<CMD> cmds = new List<CMD>();
             bool showAllCMDs = false;
@@ -221,6 +234,8 @@ namespace ConsoleHackerGame.CLI
                 showAllCMDs = true;
             }
 
+            Console.WriteLine();
+
             if(showAllCMDs)
                 Console.WriteLine("------------------------------------------------");
 
@@ -232,7 +247,7 @@ namespace ConsoleHackerGame.CLI
 
                 Console.WriteLine(indent + cmds[i].Name + gap + cmds[i].InfoText);
                 
-                if (!showAllCMDs)
+                if (!showAllCMDs && cmds[i].HelpText != "")
                     Console.WriteLine(indent + new string(' ', gapLength) + cmds[i].HelpText);
             }
 
@@ -247,7 +262,134 @@ namespace ConsoleHackerGame.CLI
 
         public static CMDMethod SystemInfo = (args) =>
         {
-            Log.Warning("SystemInfo goes here.");
+            var device = Program.ConnectedDevice;
+
+            var sysInfo = new (string title, string value)[] 
+            { 
+                ("Name:", device.Name), 
+                ("IP:", device.IP),
+                ("RAM:", device.TotalRAM.ToString())
+            };
+
+            Console.WriteLine("\n------------------------------------------------");
+
+            int gapLength = 12;
+            string indent = @"    ";
+            for (int i = 0; i < sysInfo.Length; i++)
+            {
+                var gap = new string(' ', gapLength - sysInfo[i].title.Length);
+
+                Console.WriteLine(indent + sysInfo[i].title + gap + sysInfo[i].value);
+            }
+
+            Console.WriteLine("------------------------------------------------");
+        };
+
+        public static CMDMethod WhoAmI = (args) =>
+        {
+            Console.WriteLine(Program.ConnectedDevice.Name);
+            Console.WriteLine(Program.ConnectedDevice.IP);
+        };
+
+        public static CMDMethod Connect = (args) =>
+        {
+            if(args.Length < 1)
+            {
+                Console.WriteLine("An IP is required");
+                return;
+            }
+
+            //@Incomplete: subject to change
+            var device = Program.ConnectedDevice.LinkedDevices.Find(d => d.IP == args[0]);
+
+            if(device == null)
+            {
+                Console.WriteLine("Connection Refused.");
+                return;
+            }
+
+            if (device == Program.ConnectedDevice)
+            {
+                Console.WriteLine("Already connected to this IP.");
+                return;
+            }
+
+            Program.ChangeConnectedDevice(device);
+            Console.WriteLine("Connection Successful.");
+        };
+
+        public static CMDMethod Disconnect = (args) =>
+        {
+            if(Program.ConnectedDevice == Program.PlayerComputer)
+            {
+                Console.WriteLine("Cannot disconnect from localhost.");
+                return;
+            }
+
+            Program.ChangeConnectedDevice(Program.PlayerComputer);
+            Console.WriteLine("Disconnected.");
+        };
+
+        public static CMDMethod LS = (args) =>
+        {
+            //var fs = Program.ConnectedDevice.FileSystem;
+            //var directory = Enumerable.Concat<Files.IFileBase>(fs.root.SubFolders, fs.root.Files);
+            var currentDir = Program.GetCurrentFolder();
+
+            if (Program.SubfolderIndexPath.Count > 0)
+                Console.WriteLine("..");
+
+            foreach(var folder in currentDir.SubFolders)
+            {
+                Console.WriteLine(folder.name + '/');
+            }
+
+            foreach (var file in currentDir.Files)
+            {
+                Console.WriteLine(file.name);
+            }
+        };
+
+        public static CMDMethod CD = (args) =>
+        {
+            var currentDir = Program.GetCurrentFolder();
+
+            if(args.Length < 1)
+            {
+                Console.WriteLine("A path is required.");
+                return;
+            }
+
+            if (args[0] == "/")
+                Program.SubfolderIndexPath.Clear();
+            else if(args[0] == "..")
+            {
+                if(Program.SubfolderIndexPath.Count > 0)
+                {
+                    Program.SubfolderIndexPath.RemoveAt(Program.SubfolderIndexPath.Count - 1);
+                }
+                else
+                {
+                    return;
+                }
+            }
+            else
+            {
+                if (args[0].StartsWith("/"))
+                    Program.SubfolderIndexPath.Clear();
+
+                List<int> tempIndexPath = Program.GetSubFolderPathFromPath(args[0]);
+                for (int i = 0; i < tempIndexPath.Count; i++)
+                {
+                    if(tempIndexPath[i] == -1)
+                        Program.SubfolderIndexPath.RemoveAt(Program.SubfolderIndexPath.Count - 1);
+                    else
+                        Program.SubfolderIndexPath.Add(tempIndexPath[i]);
+
+                }
+            }
+
+            Program.GeneratePrompt();
         };
 
         #endregion

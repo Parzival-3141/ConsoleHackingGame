@@ -8,11 +8,6 @@ namespace ConsoleHackerGame.CLI
 {
     public class Interpreter
     {
-        public Interpreter()
-        {
-            Commands.SortCMDs();
-        }
-
         public bool Parse(string line)
         {
             line = line.Replace(Program.Prompt, string.Empty).Trim(' ');
@@ -45,12 +40,17 @@ namespace ConsoleHackerGame.CLI
                     try
                     {
                         cmd.Invoke(cmdSegments.Skip(1).ToArray());
+                        
+                        //@Incomplete:
+                        //Program.ConnectedDevice.FileSystem.root.GetSubFolder("log")?.Files?.Add(new Files.File(cmd.Name, cmd.Name));
                     }
                     catch (Exception e)
                     {
                         Log.Error("Command Error: " + e.Message);
                         if (command.Contains("-v"))
                             Log.Error(e.StackTrace);
+                        
+                        return false;
                     }
                 }
             }

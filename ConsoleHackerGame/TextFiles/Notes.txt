@@ -68,3 +68,4 @@ CLI:
 ╰━━┻╯╰━━┻━━┻┻━┻━━╯
 
 Expr function - https://techvidvan.com/tutorials/expression-parsing-in-data-structure/
+CD functions - https://github.com/cbluoss/OpenHacknet/blob/master/Programs.cs 
