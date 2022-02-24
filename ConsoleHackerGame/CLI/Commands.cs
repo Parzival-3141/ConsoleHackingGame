@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Net = ConsoleHackerGame.Network;
 
 namespace ConsoleHackerGame.CLI
 {
@@ -16,18 +17,20 @@ namespace ConsoleHackerGame.CLI
 
         public static readonly List<CMD> cmds = new List<CMD>()
         {
-            new CMD("quit"      , (args) => Quit(args), "Quits the application."),
-            new CMD("clear"     , (args) => Console.Clear(), "Clears the console."),
-            new CMD("echo"      , (args) => Echo(args), "Prints text to the console.", "echo {on|off} [text ...]"),
-            new CMD("expr"      , (args) => Expr(args), "Evaluate integer expressions.", "expr <expression>"),
-            new CMD("help"      , (args) => Help(args), "Displays information about commands.", "help <command> | command [-h]"),
-            new CMD("title"     , (args) => ShowTitle(args), "Prints the title screen."),
-            new CMD("whoami"    , (args) => WhoAmI(args), "Displays the name and IP of the current host."),
-            new CMD("sysinfo"   , (args) => SystemInfo(args), "Displays information about the current host."),
+            new CMD("quit"      , (args) => Quit(args), "Quits the application"),
+            new CMD("clear"     , (args) => Console.Clear(), "Clears the console"),
+            new CMD("echo"      , (args) => Echo(args), "Prints text to the console", "echo {on|off} [text ...]"),
+            new CMD("expr"      , (args) => Expr(args), "Evaluate integer expressions", "expr <expression>"),
+            new CMD("help"      , (args) => Help(args), "Displays information about commands", "help <command> | command [-h]"),
+            new CMD("title"     , (args) => ShowTitle(args), "Prints the title screen"),
+            new CMD("whoami"    , (args) => WhoAmI(args), "Displays the name and IP of the current host"),
+            new CMD("sysinfo"   , (args) => SystemInfo(args), "Displays information about the current host"),
             new CMD("connect"   , (args) => Connect(args), "Connect to a remote host.", "connect <IP>"),
             new CMD("disconnect", (args) => Disconnect(args), "Disconnect from a remote host"),
             new CMD("ls"        , (args) => LS(args), "Displays a list of files and subfolders in a directory"),
             new CMD("cd"        , (args) => CD(args), "Changes the working directory", "cd <path>\n\nuse '..' to go up a directory"),
+            new CMD("mping"     , (args) => MPing(args), "Searches a network for devices", "mping [remote-host]"),
+            new CMD("cat"       , (args) => Cat(args), "Display a file's contents", "cat <file-name>"),
         };
 
         #region CMD Methods
@@ -303,10 +306,9 @@ namespace ConsoleHackerGame.CLI
             }
 
             //@Incomplete: subject to change
-            var device = Program.ConnectedDevice.LinkedDevices.Find(d => d.IP == args[0]);
-
-            if(device == null)
+            if (!Net.Utils.TryGetLinkedDevice(args[0], out var device))
             {
+                Thread.Sleep(2000);
                 Console.WriteLine("Connection Refused.");
                 return;
             }
@@ -317,6 +319,7 @@ namespace ConsoleHackerGame.CLI
                 return;
             }
 
+            Thread.Sleep(1000);
             Program.ChangeConnectedDevice(device);
             Console.WriteLine("Connection Successful.");
         };
@@ -337,7 +340,7 @@ namespace ConsoleHackerGame.CLI
         {
             //var fs = Program.ConnectedDevice.FileSystem;
             //var directory = Enumerable.Concat<Files.IFileBase>(fs.root.SubFolders, fs.root.Files);
-            var currentDir = Program.GetCurrentFolder();
+            var currentDir = Files.Utils.GetCurrentFolder();
 
             if (Program.SubfolderIndexPath.Count > 0)
                 Console.WriteLine("..");
@@ -355,7 +358,7 @@ namespace ConsoleHackerGame.CLI
 
         public static CMDMethod CD = (args) =>
         {
-            var currentDir = Program.GetCurrentFolder();
+            var currentDir = Files.Utils.GetCurrentFolder();
 
             if(args.Length < 1)
             {
@@ -381,7 +384,7 @@ namespace ConsoleHackerGame.CLI
                 if (args[0].StartsWith("/"))
                     Program.SubfolderIndexPath.Clear();
 
-                List<int> tempIndexPath = Program.GetSubFolderPathFromPath(args[0]);
+                List<int> tempIndexPath = Files.Utils.GetSubFolderPathFromPath(args[0]);
                 for (int i = 0; i < tempIndexPath.Count; i++)
                 {
                     if(tempIndexPath[i] == -1)
@@ -393,6 +396,62 @@ namespace ConsoleHackerGame.CLI
             }
 
             Program.GeneratePrompt();
+        };
+
+        public static CMDMethod MPing = (args) =>
+        {
+            var searchDevice = Program.ConnectedDevice;
+            
+            if (args.Length > 0)
+            {
+                if(Net.Utils.TryGetLinkedDevice(args[0], out var d))
+                    searchDevice = d;
+                else
+                {
+                    Thread.Sleep(500);
+                    Console.WriteLine("Invalid host.");
+                    return;
+                }
+            }
+
+            if(searchDevice.LinkedDevices.Count < 1)
+            {
+                Thread.Sleep(500);
+                Console.WriteLine($"No linked devices found on '{searchDevice.Name}'.");
+                return;
+            }
+
+            string indent = @"    ";
+            foreach(var dev in searchDevice.LinkedDevices)
+            {
+                Thread.Sleep(500);
+                var gap = new string(' ', 12 - dev.Name.Length);
+                Console.WriteLine(indent + dev.Name + gap + dev.IP);
+            }
+        };
+
+        public static CMDMethod Cat = (args) =>
+        {
+            if(args.Length < 1)
+            {
+                Console.WriteLine("Requires a file path.");
+                return;
+            }
+
+            //  @Incomplete:
+            //  Ideally you could pass a path and it'll search the path for the file
+
+            //List<int> indexPath = Files.Utils.GetSubFolderPathFromPath(args[0]);
+            //Files.Utils.GetCurrentFolderAtDepth(indexPath.Last());
+
+            var currentFolder = Files.Utils.GetCurrentFolder();
+            if(!currentFolder.TryGetFile(args[0], out var file))
+            {
+                Console.WriteLine("Invalid file path.");
+                return;
+            }
+
+            Console.WriteLine($"\n{file.name}\n\n{file.data}\n");
         };
 
         #endregion

@@ -47,6 +47,12 @@ namespace ConsoleHackerGame
             var testCom = new Computer("test", "192.168.1.57", 256);
             PlayerComputer.LinkedDevices.Add(testCom);
 
+            var log = testCom.FileSystem.root.GetSubFolder("log");
+            log.Files.Add(TextFiles.IRC.GenerateIRCLog());
+            log.Files.Add(TextFiles.IRC.GenerateIRCLog());
+            log.Files.Add(TextFiles.IRC.GenerateIRCLog());
+
+
             GeneratePrompt();
             Commands.ShowTitle.Invoke(args); // args doesnt matter here
 
@@ -66,7 +72,7 @@ namespace ConsoleHackerGame
             string path = "/";
             for (int i = 0; i < SubfolderIndexPath.Count; i++)
             {
-                path += GetCurrentFolderAtDepth(i + 1).name + "/";
+                path += Files.Utils.GetCurrentFolderAtDepth(i + 1).name + "/";
             }
 
             Prompt = $"[{ConnectedDevice.Name}@{ConnectedDevice.IP}] {path}>";
@@ -84,76 +90,6 @@ namespace ConsoleHackerGame
             SubfolderIndexPath.Clear(); // Sets path to root
             GeneratePrompt();
             //CurrentFolder = device.FileSystem.root;
-        }
-
-        public static Files.Folder GetCurrentFolder()
-        {
-            return GetCurrentFolderAtDepth(SubfolderIndexPath.Count);
-        }
-
-        public static Files.Folder GetCurrentFolderAtDepth(int depth)
-        {
-            var folder = ConnectedDevice.FileSystem.root;
-
-            if(SubfolderIndexPath.Count > 0)
-            {
-                try
-                {
-                    for (int i = 0; i < depth; i++)
-                    {
-                        if (folder.SubFolders.Count > SubfolderIndexPath[i])
-                            folder = folder.SubFolders[SubfolderIndexPath[i]];
-                    }
-                }
-                catch { }
-            }
-
-            return folder;
-        }
-
-        public static List<int> GetSubFolderPathFromPath(string path, Files.Folder currentFolder = null)
-        {
-            var list = new List<int>();
-            var folder = currentFolder ?? GetCurrentFolder();
-            string[] pathSegments = path.Split(new char[] { '/', '\\' });
-
-            int num = 0;
-            foreach(var pSeg in pathSegments)
-            {
-                if(pSeg != "" && pSeg != " ")
-                {
-                    if(pSeg == "..")
-                    {
-                        list.Add(-1);
-                        num++;
-                        folder = GetCurrentFolderAtDepth(SubfolderIndexPath.Count - num);
-                    }
-                    else
-                    {
-                        bool foundSubFolder = false;
-                        for (int i = 0; i < folder.SubFolders.Count; i++)
-                        {
-                            if (folder.SubFolders[i].name == pSeg)
-                            {
-                                folder = folder.SubFolders[i];
-                                foundSubFolder = true;
-                                list.Add(i);
-                                break;
-                            }
-                        }
-
-                        if (!foundSubFolder)
-                        {
-                            Console.WriteLine("Invalid Path");
-                            list.Clear();
-                            return list;
-                        }
-                    }
-
-                }
-            }
-            
-            return list;
         }
     }
 }

@@ -23,5 +23,11 @@ namespace ConsoleHackerGame.Files
         {
             return SubFolders.Find(f => f.name == folderName);
         }
+
+        public bool TryGetFile(string fileName, out File file)
+        {
+            file = Files.Find((f) => f.name == fileName);
+            return file != null;
+        }
     }
 }

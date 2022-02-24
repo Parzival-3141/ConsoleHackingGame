@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CHG = ConsoleHackerGame;
 
 namespace ConsoleHackerGame.Files
 {
@@ -22,9 +23,9 @@ namespace ConsoleHackerGame.Files
         private void GenerateSysFiles()
         {
             Folder sys = root.GetSubFolder("sys");
-            sys.Files.Add(new File("os-config.sys", Utils.GenerateBinaryString(50)));
-            sys.Files.Add(new File("bootcfg.dll"  , Utils.GenerateBinaryString(50)));
-            sys.Files.Add(new File("netcfgx.dll"  , Utils.GenerateBinaryString(50)));
+            sys.Files.Add(new File("os-config.sys", CHG.Utils.GenerateBinaryString(1000)));
+            sys.Files.Add(new File("bootcfg.dll"  , CHG.Utils.GenerateBinaryString(1000)));
+            sys.Files.Add(new File("netcfgx.dll"  , CHG.Utils.GenerateBinaryString(1000)));
         }
 
 

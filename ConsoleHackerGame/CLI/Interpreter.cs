@@ -31,7 +31,7 @@ namespace ConsoleHackerGame.CLI
                         return false;
                     }
 
-                    if (command.Contains("-h"))
+                    if (cmdSegments.Contains("-h"))
                     {
                         Commands.Help.Invoke(new string[] { cmd.Name });
                         continue;

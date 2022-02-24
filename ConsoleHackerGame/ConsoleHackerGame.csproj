@@ -69,6 +69,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Log.cs" />
+    <Compile Include="TextFiles\IRC.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
