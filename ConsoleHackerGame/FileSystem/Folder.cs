@@ -4,14 +4,15 @@ namespace ConsoleHackerGame.Files
 {
     public class Folder : IFileBase
     {
-        public List<File> Files { get; private set; } = new List<File>();
-        public List<Folder> SubFolders { get; private set; } = new List<Folder>();
+        public List<IFileBase> Contents { get; set; } = new List<IFileBase>();
 
         public string name;
+        public Folder parent;
 
-        public Folder(string name)
+        public Folder(string name, Folder parent)
         {
             this.name = name;
+            this.parent = parent;
         }
 
         public string GetName()
@@ -19,14 +20,19 @@ namespace ConsoleHackerGame.Files
             return name;
         }
 
+        public Folder GetParentFolder()
+        {
+            return parent;
+        }
+
         public Folder GetSubFolder(string folderName)
         {
-            return SubFolders.Find(f => f.name == folderName);
+            return Contents.Find(f => f.GetName() == folderName) as Folder;
         }
 
         public bool TryGetFile(string fileName, out File file)
         {
-            file = Files.Find((f) => f.name == fileName);
+            file = Contents.Find((f) => f.GetName() == fileName) as File;
             return file != null;
         }
     }

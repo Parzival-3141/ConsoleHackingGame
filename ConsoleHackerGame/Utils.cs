@@ -27,75 +27,75 @@ namespace ConsoleHackerGame.Files
 {
     public static partial class Utils
     {
-        public static Folder GetCurrentFolder()
-        {
-            return GetCurrentFolderAtDepth(Program.SubfolderIndexPath.Count);
-        }
+        //public static Folder GetCurrentFolder()
+        //{
+        //    return GetCurrentFolderAtDepth(Program.SubfolderIndexPath.Count);
+        //}
 
-        public static Folder GetCurrentFolderAtDepth(int depth)
-        {
-            var folder = Program.ConnectedDevice.FileSystem.root;
+        //public static Folder GetCurrentFolderAtDepth(int depth)
+        //{
+        //    var folder = Program.ConnectedDevice.FileSystem.root;
 
-            if (Program.SubfolderIndexPath.Count > 0)
-            {
-                try
-                {
-                    for (int i = 0; i < depth; i++)
-                    {
-                        if (folder.SubFolders.Count > Program.SubfolderIndexPath[i])
-                            folder = folder.SubFolders[Program.SubfolderIndexPath[i]];
-                    }
-                }
-                catch { }
-            }
+        //    if (Program.SubfolderIndexPath.Count > 0)
+        //    {
+        //        try
+        //        {
+        //            for (int i = 0; i < depth; i++)
+        //            {
+        //                if (folder.Contents.Count > Program.SubfolderIndexPath[i])
+        //                    folder = folder.Contents[Program.SubfolderIndexPath[i]];
+        //            }
+        //        }
+        //        catch { }
+        //    }
 
-            return folder;
-        }
+        //    return folder;
+        //}
 
-        public static List<int> GetSubFolderPathFromPath(string path, Folder currentFolder = null)
-        {
-            var list = new List<int>();
-            var folder = currentFolder ?? GetCurrentFolder();
-            string[] pathSegments = path.Split(new char[] { '/', '\\' });
+        //public static List<int> GetSubFolderPathFromPath(string path, Folder currentFolder = null)
+        //{
+        //    var list = new List<int>();
+        //    var folder = currentFolder ?? GetCurrentFolder();
+        //    string[] pathSegments = path.Split(new char[] { '/', '\\' });
 
-            int num = 0;
-            foreach (var pSeg in pathSegments)
-            {
-                if (pSeg != "" && pSeg != " ")
-                {
-                    if (pSeg == "..")
-                    {
-                        list.Add(-1);
-                        num++;
-                        folder = GetCurrentFolderAtDepth(Program.SubfolderIndexPath.Count - num);
-                    }
-                    else
-                    {
-                        bool foundSubFolder = false;
-                        for (int i = 0; i < folder.SubFolders.Count; i++)
-                        {
-                            if (folder.SubFolders[i].name == pSeg)
-                            {
-                                folder = folder.SubFolders[i];
-                                foundSubFolder = true;
-                                list.Add(i);
-                                break;
-                            }
-                        }
+        //    int num = 0;
+        //    foreach (var pSeg in pathSegments)
+        //    {
+        //        if (pSeg != "" && pSeg != " ")
+        //        {
+        //            if (pSeg == "..")
+        //            {
+        //                list.Add(-1);
+        //                num++;
+        //                folder = GetCurrentFolderAtDepth(Program.SubfolderIndexPath.Count - num);
+        //            }
+        //            else
+        //            {
+        //                bool foundSubFolder = false;
+        //                for (int i = 0; i < folder.Contents.Count; i++)
+        //                {
+        //                    if (folder.Contents[i].name == pSeg)
+        //                    {
+        //                        folder = folder.Contents[i];
+        //                        foundSubFolder = true;
+        //                        list.Add(i);
+        //                        break;
+        //                    }
+        //                }
 
-                        if (!foundSubFolder)
-                        {
-                            Console.WriteLine("Invalid Path");
-                            list.Clear();
-                            return list;
-                        }
-                    }
+        //                if (!foundSubFolder)
+        //                {
+        //                    Console.WriteLine("Invalid Path");
+        //                    list.Clear();
+        //                    return list;
+        //                }
+        //            }
 
-                }
-            }
+        //        }
+        //    }
 
-            return list;
-        }
+        //    return list;
+        //}
     }
 }
 

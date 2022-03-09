@@ -24,7 +24,7 @@ namespace ConsoleHackerGame.TextFiles
 
         public static string[] IRCLogs = new string[] { elk1,cam1, cam2, mara1 };
 
-        public static Files.File GenerateIRCLog(string data)
+        public static void GenerateIRCLog(string data, Files.Folder parentFolder)
         {
             var date = new DateTime
             (
@@ -33,12 +33,12 @@ namespace ConsoleHackerGame.TextFiles
                 Utils.Random.Next(1, 30)       // D
             );
 
-            return new Files.File($"IRC_log_{date.ToShortDateString()}".Replace(' ', '_'), data);
+            parentFolder.Contents.Add(new Files.File($"IRC_log_{date.ToShortDateString()}".Replace(' ', '_'), data, parentFolder));
         }
 
-        public static Files.File GenerateIRCLog()
+        public static void GenerateIRCLog(Files.Folder parentFolder)
         {
-            return GenerateIRCLog(IRCLogs[Utils.Random.Next(IRCLogs.Length)]);
+            GenerateIRCLog(IRCLogs[Utils.Random.Next(IRCLogs.Length)], parentFolder);
         }
     }
 }

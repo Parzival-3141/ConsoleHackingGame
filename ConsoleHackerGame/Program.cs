@@ -31,11 +31,7 @@ namespace ConsoleHackerGame
         public static Interpreter Interpreter { get; private set; }
         public static Computer PlayerComputer { get; private set; }
         public static NetworkedDevice ConnectedDevice { get; set; }
-
-        /// <summary>
-        /// Uses the indices of Subfolders to construct a path.
-        /// </summary>
-        public static List<int> SubfolderIndexPath { get; set; } = new List<int>();
+        public static Files.Folder CurrentFolder { get; set; }
 
         static void Main(string[] args)
         {
@@ -43,14 +39,15 @@ namespace ConsoleHackerGame
 
             PlayerComputer = new Computer("player", "192.168.1.1", 256);
             ConnectedDevice = PlayerComputer;
+            CurrentFolder = PlayerComputer.FileSystem.root;
             
             var testCom = new Computer("test", "192.168.1.57", 256);
             PlayerComputer.LinkedDevices.Add(testCom);
 
-            var log = testCom.FileSystem.root.GetSubFolder("log");
-            log.Files.Add(TextFiles.IRC.GenerateIRCLog());
-            log.Files.Add(TextFiles.IRC.GenerateIRCLog());
-            log.Files.Add(TextFiles.IRC.GenerateIRCLog());
+            var logFolder = testCom.FileSystem.root.GetSubFolder("log");
+            TextFiles.IRC.GenerateIRCLog(logFolder);
+            TextFiles.IRC.GenerateIRCLog(logFolder);
+            TextFiles.IRC.GenerateIRCLog(logFolder);
 
 
             GeneratePrompt();
@@ -69,11 +66,7 @@ namespace ConsoleHackerGame
 
         public static void GeneratePrompt()
         {
-            string path = "/";
-            for (int i = 0; i < SubfolderIndexPath.Count; i++)
-            {
-                path += Files.Utils.GetCurrentFolderAtDepth(i + 1).name + "/";
-            }
+            string path = Files.FileSystem.GetFullPath(CurrentFolder);
 
             Prompt = $"[{ConnectedDevice.Name}@{ConnectedDevice.IP}] {path}>";
         }
@@ -87,9 +80,10 @@ namespace ConsoleHackerGame
             }
 
             ConnectedDevice = device;
-            SubfolderIndexPath.Clear(); // Sets path to root
+            CurrentFolder = ConnectedDevice.FileSystem.root;
             GeneratePrompt();
-            //CurrentFolder = device.FileSystem.root;
         }
+
+        internal static Files.FileSystem CurrentFileSystem() => ConnectedDevice.FileSystem;
     }
 }

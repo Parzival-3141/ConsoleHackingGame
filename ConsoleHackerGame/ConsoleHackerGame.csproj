@@ -64,6 +64,7 @@
     <Compile Include="FileSystem\File.cs" />
     <Compile Include="FileSystem\FileSystem.cs" />
     <Compile Include="FileSystem\Folder.cs" />
+    <Compile Include="FileSystem\IFileBase.cs" />
     <Compile Include="Network\Computer.cs" />
     <Compile Include="Network\NetworkedDevice.cs" />
     <Compile Include="Program.cs" />

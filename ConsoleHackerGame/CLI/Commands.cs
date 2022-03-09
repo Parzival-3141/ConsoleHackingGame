@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -338,62 +339,50 @@ namespace ConsoleHackerGame.CLI
 
         public static CMDMethod LS = (args) =>
         {
-            //var fs = Program.ConnectedDevice.FileSystem;
-            //var directory = Enumerable.Concat<Files.IFileBase>(fs.root.SubFolders, fs.root.Files);
-            var currentDir = Files.Utils.GetCurrentFolder();
-
-            if (Program.SubfolderIndexPath.Count > 0)
-                Console.WriteLine("..");
-
-            foreach(var folder in currentDir.SubFolders)
+            var curDir = Program.CurrentFolder;
+            
+            if(args.Length > 0)
             {
-                Console.WriteLine(folder.name + '/');
+                curDir = Program.ConnectedDevice.FileSystem.Lookup(args[0]) as Files.Folder;
             }
 
-            foreach (var file in currentDir.Files)
+            if (curDir.parent != null)
+                Console.WriteLine("..");
+
+            foreach(var f in curDir.Contents)
             {
-                Console.WriteLine(file.name);
+                var n = f.GetName();
+
+                n += Path.HasExtension(n) ? string.Empty : "/";
+                
+                Console.WriteLine(n);
             }
         };
 
         public static CMDMethod CD = (args) =>
         {
-            var currentDir = Files.Utils.GetCurrentFolder();
-
             if(args.Length < 1)
             {
                 Console.WriteLine("A path is required.");
                 return;
             }
 
-            if (args[0] == "/")
-                Program.SubfolderIndexPath.Clear();
-            else if(args[0] == "..")
-            {
-                if(Program.SubfolderIndexPath.Count > 0)
-                {
-                    Program.SubfolderIndexPath.RemoveAt(Program.SubfolderIndexPath.Count - 1);
-                }
-                else
-                {
-                    return;
-                }
-            }
-            else
-            {
-                if (args[0].StartsWith("/"))
-                    Program.SubfolderIndexPath.Clear();
+            var f = Program.ConnectedDevice.FileSystem.Lookup(args[0]);
 
-                List<int> tempIndexPath = Files.Utils.GetSubFolderPathFromPath(args[0]);
-                for (int i = 0; i < tempIndexPath.Count; i++)
-                {
-                    if(tempIndexPath[i] == -1)
-                        Program.SubfolderIndexPath.RemoveAt(Program.SubfolderIndexPath.Count - 1);
-                    else
-                        Program.SubfolderIndexPath.Add(tempIndexPath[i]);
-
-                }
+            if(f == null)
+            {
+                Console.WriteLine("Cannot find path.");
+                return;
             }
+
+            if(!f.GetType().IsAssignableFrom(typeof(Files.Folder)))
+            {
+                Console.WriteLine("Invalid path.");
+                return;
+            }
+
+
+            Program.CurrentFolder = f as Files.Folder;
 
             Program.GeneratePrompt();
         };
@@ -441,11 +430,7 @@ namespace ConsoleHackerGame.CLI
             //  @Incomplete:
             //  Ideally you could pass a path and it'll search the path for the file
 
-            //List<int> indexPath = Files.Utils.GetSubFolderPathFromPath(args[0]);
-            //Files.Utils.GetCurrentFolderAtDepth(indexPath.Last());
-
-            var currentFolder = Files.Utils.GetCurrentFolder();
-            if(!currentFolder.TryGetFile(args[0], out var file))
+            if(!Program.CurrentFolder.TryGetFile(args[0], out var file))
             {
                 Console.WriteLine("Invalid file path.");
                 return;
