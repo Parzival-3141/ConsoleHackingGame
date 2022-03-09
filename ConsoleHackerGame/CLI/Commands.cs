@@ -430,20 +430,22 @@ namespace ConsoleHackerGame.CLI
 
         public static CMDMethod Cat = (args) =>
         {
-            if(args.Length < 1)
+            if (args.Length < 1)
             {
                 Console.WriteLine("Requires a file path.");
                 return;
             }
 
-            //  @Incomplete:
-            //  Ideally you could pass a path and it'll search the path for the file
+            //if (!Program.CurrentFolder.TryGetFile(args[0], out file))
+            if (!FileSystem.TryPathLookup(args[0], out var f)) return;
 
-            if(!Program.CurrentFolder.TryGetFile(args[0], out var file))
+            if(!(f is Files.File))
             {
-                Console.WriteLine("Invalid file path.");
+                Console.WriteLine("Invalid file.");
                 return;
             }
+
+            var file = f as Files.File;
 
             Console.WriteLine($"\n{file.name}\n\n{file.data}\n");
         };
