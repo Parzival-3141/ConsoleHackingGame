@@ -27,6 +27,7 @@ namespace ConsoleHackerGame
         public static string Prompt;
         public static bool quitting = false;
         public static bool echo = true;
+        public static bool absolutePromptPath = true;
 
         public static Interpreter Interpreter { get; private set; }
         public static Computer PlayerComputer { get; private set; }
@@ -39,12 +40,12 @@ namespace ConsoleHackerGame
 
             PlayerComputer = new Computer("player", "192.168.1.1", 256);
             ConnectedDevice = PlayerComputer;
-            CurrentFolder = PlayerComputer.FileSystem.root;
+            CurrentFolder = PlayerComputer.FileSystem.Root;
             
             var testCom = new Computer("test", "192.168.1.57", 256);
             PlayerComputer.LinkedDevices.Add(testCom);
 
-            var logFolder = testCom.FileSystem.root.GetSubFolder("log");
+            var logFolder = testCom.FileSystem.Root.GetSubFolder("log");
             TextFiles.IRC.GenerateIRCLog(logFolder);
             TextFiles.IRC.GenerateIRCLog(logFolder);
             TextFiles.IRC.GenerateIRCLog(logFolder);
@@ -80,10 +81,10 @@ namespace ConsoleHackerGame
             }
 
             ConnectedDevice = device;
-            CurrentFolder = ConnectedDevice.FileSystem.root;
+            CurrentFolder = ConnectedDevice.FileSystem.Root;
             GeneratePrompt();
         }
 
-        internal static Files.FileSystem CurrentFileSystem() => ConnectedDevice.FileSystem;
+        internal static Files.FileSystem GetCurrentFileSystem() => ConnectedDevice.FileSystem;
     }
 }

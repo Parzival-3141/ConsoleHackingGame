@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Net = ConsoleHackerGame.Network;
+using ConsoleHackerGame.Files;
 
 namespace ConsoleHackerGame.CLI
 {
@@ -343,7 +344,14 @@ namespace ConsoleHackerGame.CLI
             
             if(args.Length > 0)
             {
-                curDir = Program.ConnectedDevice.FileSystem.Lookup(args[0]) as Files.Folder;
+                if (!FileSystem.TryPathLookup(args[0], out var f)) return;
+                if(!(f is Folder))
+                {
+                    Console.WriteLine("Invalid path.");
+                    return;
+                }
+
+                curDir = f as Folder;
             }
 
             if (curDir.parent != null)
@@ -367,22 +375,23 @@ namespace ConsoleHackerGame.CLI
                 return;
             }
 
-            var f = Program.ConnectedDevice.FileSystem.Lookup(args[0]);
+            //var f = Program.ConnectedDevice.FileSystem.Lookup(args[0]);
 
-            if(f == null)
-            {
-                Console.WriteLine("Cannot find path.");
-                return;
-            }
+            if (!FileSystem.TryPathLookup(args[0], out IFileBase fBase)) return;
 
-            if(!f.GetType().IsAssignableFrom(typeof(Files.Folder)))
+            //if(fBase == null)
+            //{
+            //    Console.WriteLine("Cannot find path.");
+            //    return;
+            //}
+
+            if (!(fBase is Folder))
             {
                 Console.WriteLine("Invalid path.");
                 return;
             }
 
-
-            Program.CurrentFolder = f as Files.Folder;
+            Program.CurrentFolder = fBase as Folder;
 
             Program.GeneratePrompt();
         };

@@ -6,9 +6,9 @@
         public string data;
         public Folder parent;
 
-        public File(string fileName, string data, Folder parent)
+        public File(string name, string data, Folder parent)
         {
-            name = fileName;
+            this.name = name;
             this.data = data;
             this.parent = parent;
         }

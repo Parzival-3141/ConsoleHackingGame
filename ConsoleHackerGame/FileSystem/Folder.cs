@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ConsoleHackerGame;
 
 namespace ConsoleHackerGame.Files
 {
@@ -9,7 +10,7 @@ namespace ConsoleHackerGame.Files
         public string name;
         public Folder parent;
 
-        public Folder(string name, Folder parent)
+        private Folder(string name, Folder parent)
         {
             this.name = name;
             this.parent = parent;
@@ -25,15 +26,38 @@ namespace ConsoleHackerGame.Files
             return parent;
         }
 
-        public Folder GetSubFolder(string folderName)
+        public Folder GetSubFolder(string name)
         {
-            return Contents.Find(f => f.GetName() == folderName) as Folder;
+            return Contents.Find(f => f.GetName() == name) as Folder;
         }
 
-        public bool TryGetFile(string fileName, out File file)
+        public File GetFile(string name)
         {
-            file = Contents.Find((f) => f.GetName() == fileName) as File;
-            return file != null;
+            return Contents.Find((f) => f.GetName() == name) as File;
+        }
+
+        public void AddFolder(string name)
+        {
+            if (name.Contains("."))
+            {
+                System.Console.WriteLine("Invalid folder name.");
+                return;
+            }
+
+            name = name.Replace("\\", "/");
+            name = name.Replace("/" , string.Empty);
+
+            Contents.Add(new Folder(name, this));
+        }
+
+        public void AddFile(string name, string data)
+        {
+            Contents.Add(new File(name, data, this));
+        }
+
+        public static Folder CreateRootFolder()
+        {
+            return new Folder("/", null);
         }
     }
 }

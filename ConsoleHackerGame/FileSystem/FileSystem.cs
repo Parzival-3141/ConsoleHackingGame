@@ -9,27 +9,27 @@ namespace ConsoleHackerGame.Files
 {
     public class FileSystem
     {
-        public Folder root;
+        public Folder Root { get; private set; }
 
         public FileSystem()
         {
-            root = new Folder("/", null);
-            root.Contents.Add(new Folder("sys", root));
-            root.Contents.Add(new Folder("home", root));
-            root.Contents.Add(new Folder("bin", root));
-            root.Contents.Add(new Folder("log", root));
+            Root = Folder.CreateRootFolder();
+            Root.AddFolder("sys");
+            Root.AddFolder("home");
+            Root.AddFolder("bin");
+            Root.AddFolder("log");
 
-            root.GetSubFolder("home").Contents.Add(new Folder("test", root.GetSubFolder("home")));
+            Root.GetSubFolder("home").AddFolder("test");
 
             GenerateSysFiles();
         }
 
         private void GenerateSysFiles()
         {
-            Folder sys = root.GetSubFolder("sys");
-            sys.Contents.Add(new File("os-config.sys", CHG.Utils.GenerateBinaryString(1000), sys));
-            sys.Contents.Add(new File("bootcfg.dll"  , CHG.Utils.GenerateBinaryString(1000), sys));
-            sys.Contents.Add(new File("netcfgx.dll"  , CHG.Utils.GenerateBinaryString(1000), sys));
+            Folder sys = Root.GetSubFolder("sys");
+            sys.AddFile("os-config.sys", CHG.Utils.GenerateBinaryString(1000));
+            sys.AddFile("bootcfg.dll"  , CHG.Utils.GenerateBinaryString(1000));
+            sys.AddFile("netcfgx.dll"  , CHG.Utils.GenerateBinaryString(1000));
         }
 
         public IFileBase Lookup(string path)
@@ -38,7 +38,7 @@ namespace ConsoleHackerGame.Files
             if (path.StartsWith("/"))
             {
                 path = path.Substring(1);
-                curDir = root;
+                curDir = Root;
             }
             else
             {
@@ -65,10 +65,58 @@ namespace ConsoleHackerGame.Files
             return result;
         }
 
+        public static bool TryPathLookup(string path, out IFileBase file)
+        {
+            file = null;
+            Folder currentPath = path.StartsWith("/") ? Program.GetCurrentFileSystem().Root : Program.CurrentFolder;
+            string[] pathSegments = path.Split(new char[] { '/', '\\' });
+
+            for (int i = 0; i < pathSegments.Length; i++)
+            {
+                string pSeg = pathSegments[i];
+                
+                if (pSeg == "" || pSeg == " ")
+                    continue;
+
+                if (pSeg == "..")
+                {
+                    currentPath = currentPath.parent ?? currentPath;
+                    file = currentPath;
+                }
+                else if (pSeg == ".")
+                {
+                    //  Stay at the current path, i.e. do nothing
+                    //  currentDir = currentDir
+                    file = currentPath;
+                }
+                else
+                {
+                    var f = currentPath.Contents.Find(x => x.GetName() == pSeg);
+
+                    if (f == null)
+                    {
+                        Console.WriteLine("Cannot find path!");
+                        return false;
+                    }
+
+                    if ((i != pathSegments.Length - 1 && Path.HasExtension(f.GetName())) && !(f is Folder))
+                    {
+                        Console.WriteLine("Invalid path!");
+                        return false;
+                    }
+
+                    file = f;
+                    currentPath = f as Folder;
+                }
+            }
+
+            return true;
+        }
+
         public static string GetFullPath(IFileBase file)
         {
-            Folder parentDir = file.GetParentFolder();
             string path = file.GetName();
+            Folder parentDir = file.GetParentFolder();
 
             if (file.GetName() == "/" && parentDir == null)
                 return path;
@@ -76,10 +124,13 @@ namespace ConsoleHackerGame.Files
             if (!Path.HasExtension(file.GetName()))
                 path += "/";
             
-            while(parentDir.GetParentFolder() != null)
+
+            while(parentDir != null)
             {
+                var s = parentDir.name == "/" ? string.Empty : "/";
+
+                path = path.Insert(0, parentDir.name + s);
                 parentDir = parentDir.GetParentFolder();
-                path = path.Insert(0, parentDir.name + "/");
             }
 
             return path;

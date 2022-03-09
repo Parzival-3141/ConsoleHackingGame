@@ -27,6 +27,19 @@ namespace ConsoleHackerGame.Files
 {
     public static partial class Utils
     {
+        public static bool TryGetSubFolder(this Folder f, string name, out Folder folder)
+        {
+            folder = f.GetSubFolder(name);
+            return folder != null;
+        }
+
+        public static bool TryGetFile(this Folder f, string name, out File file)
+        {
+            file = f.GetFile(name);
+            return file != null;
+        }
+
+
         //public static Folder GetCurrentFolder()
         //{
         //    return GetCurrentFolderAtDepth(Program.SubfolderIndexPath.Count);
@@ -110,6 +123,9 @@ namespace ConsoleHackerGame.Network
             return device != null;
         }
 
+        /// <summary>
+        /// Searches <seealso cref="Program.ConnectedDevice"/> for <paramref name="searchIP"/>
+        /// </summary>
         public static bool TryGetLinkedDevice(string searchIP, out NetworkedDevice device)
         {
             return TryGetLinkedDevice(Program.ConnectedDevice, searchIP, out device);
