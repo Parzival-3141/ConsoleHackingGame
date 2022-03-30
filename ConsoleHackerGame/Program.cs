@@ -36,6 +36,9 @@ namespace ConsoleHackerGame
 
         static void Main(string[] args)
         {
+            NewFileSystem.Test.Run();
+            return;
+
             Interpreter = new Interpreter();
 
             PlayerComputer = new Computer("player", "192.168.1.1", 256);
