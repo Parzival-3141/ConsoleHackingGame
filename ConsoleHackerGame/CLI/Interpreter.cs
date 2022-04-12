@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConsoleHackerGame.CLI
 {
-    public class Interpreter
+    public static class Interpreter
     {
-        public bool Parse(string line)
+        public static bool Parse(string line)
         {
             line = line.Replace(Program.Prompt, string.Empty).Trim(' ');
 

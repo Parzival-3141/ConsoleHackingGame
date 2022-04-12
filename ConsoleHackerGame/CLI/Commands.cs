@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Net = ConsoleHackerGame.Network;
-using ConsoleHackerGame.Files;
+using FileSystem;
 
 namespace ConsoleHackerGame.CLI
 {
@@ -340,30 +337,30 @@ namespace ConsoleHackerGame.CLI
 
         public static CMDMethod LS = (args) =>
         {
-            var curDir = Program.CurrentFolder;
+            var curDir = Program.CurrentDirectory;
             
             if(args.Length > 0)
             {
-                if (!FileSystem.TryPathLookup(args[0], out var f)) return;
-                if(!(f is Folder))
-                {
-                    Console.WriteLine("Invalid path.");
-                    return;
-                }
+                //var node = Program.GetCurrentFileSystem().Search(args[0], curDir);
+                //if(node.NodeType != NodeType.Directory)
+                //{
+                //    Console.WriteLine("Invalid path: cannot ls a File.");
+                //    return;
+                //}
 
-                curDir = f as Folder;
+                if (!Program.GetCurrentFileSystem().TrySearch(args[0], out Directory node))
+                    return;
+
+                curDir = node /*as FileSystem.Directory*/;
             }
 
-            if (curDir.parent != null)
+            if (curDir.ParentDirectory != null)
                 Console.WriteLine("..");
 
-            foreach(var f in curDir.Contents)
+            foreach(var node in curDir.Contents)
             {
-                var n = f.GetName();
-
-                n += Path.HasExtension(n) ? string.Empty : "/";
-                
-                Console.WriteLine(n);
+                var suffix = node.NodeType == NodeType.File ? string.Empty : "/";
+                Console.WriteLine(node.Name + suffix);
             }
         };
 
@@ -375,24 +372,18 @@ namespace ConsoleHackerGame.CLI
                 return;
             }
 
-            //var f = Program.ConnectedDevice.FileSystem.Lookup(args[0]);
+            //var node = Program.GetCurrentFileSystem().Search(args[0], Program.CurrentDirectory);
 
-            if (!FileSystem.TryPathLookup(args[0], out IFileBase fBase)) return;
-
-            //if(fBase == null)
+            //if(node.NodeType != NodeType.Directory)
             //{
-            //    Console.WriteLine("Cannot find path.");
+            //    Console.WriteLine("Invalid path: cannot access file as a directory!");
             //    return;
             //}
 
-            if (!(fBase is Folder))
-            {
-                Console.WriteLine("Invalid path.");
+            if (!Program.GetCurrentFileSystem().TrySearch(args[0], out Directory node))
                 return;
-            }
 
-            Program.CurrentFolder = fBase as Folder;
-
+            Program.CurrentDirectory = node /*as FileSystem.Directory*/;
             Program.GeneratePrompt();
         };
 
@@ -436,18 +427,10 @@ namespace ConsoleHackerGame.CLI
                 return;
             }
 
-            //if (!Program.CurrentFolder.TryGetFile(args[0], out file))
-            if (!FileSystem.TryPathLookup(args[0], out var f)) return;
-
-            if(!(f is Files.File))
-            {
-                Console.WriteLine("Invalid file.");
+            if (!Program.GetCurrentFileSystem().TrySearch(args[0], out File file))
                 return;
-            }
 
-            var file = f as Files.File;
-
-            Console.WriteLine($"\n{file.name}\n\n{file.data}\n");
+            Console.WriteLine($"\n{file.Name}\n\n{file.Contents}\n");
         };
 
         #endregion

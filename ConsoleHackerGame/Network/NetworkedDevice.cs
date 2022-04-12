@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace ConsoleHackerGame.Network
 {
@@ -36,7 +32,7 @@ namespace ConsoleHackerGame.Network
         public string Name { get; protected set; }
         public string IP { get; protected set; }
         public List<NetworkedDevice> LinkedDevices { get; protected set; } = new List<NetworkedDevice>(); // for netmap or for local network?
-        internal Files.FileSystem FileSystem { get; private protected set; }
+        internal FileSystem.FileSystem FileSystem { get; private protected set; }
         public int TotalRAM { get; protected set; }
         public int AvailableRAM { get => TotalRAM - UsedRAM; }
 

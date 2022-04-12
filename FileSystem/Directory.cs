@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace NewFileSystem
+namespace FileSystem
 {
     public class Directory : INode<Directory>
     {
@@ -81,5 +81,16 @@ namespace NewFileSystem
             Contents.Add(file);
             return file;
         }
+
+        public Directory GetChildDirectory(string name)
+        {
+            return Contents.Find(n => n.Name == name && n.NodeType == NodeType.Directory) as Directory;
+        }
+
+        public File GetChildFile(string name)
+        {
+            return Contents.Find(n => n.Name == name && n.NodeType == NodeType.File) as File;
+        }
+
     }
 }

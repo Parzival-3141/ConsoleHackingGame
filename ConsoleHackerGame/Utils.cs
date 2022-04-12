@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using FileSystem;
 
 namespace ConsoleHackerGame
 {
@@ -20,95 +17,40 @@ namespace ConsoleHackerGame
                 s += Convert.ToString(b, 2);
             return s;
         }
-    }
-}
 
-namespace ConsoleHackerGame.Files
-{
-    public static partial class Utils
-    {
-        public static bool TryGetSubFolder(this Folder f, string name, out Folder folder)
+        public static bool TrySearch(this FileSystem.FileSystem fs, string path, out INodeBase node)
         {
-            folder = f.GetSubFolder(name);
-            return folder != null;
+            try
+            {
+                node = fs.Search(path, Program.CurrentDirectory);
+                return true;
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                node = null;
+                return false;
+            }
         }
 
-        public static bool TryGetFile(this Folder f, string name, out File file)
+        public static bool TrySearch<T>(this FileSystem.FileSystem fs, string path, out T result) where T : class, INodeBase
         {
-            file = f.GetFile(name);
-            return file != null;
+            try
+            {
+                var node = fs.Search(path, Program.CurrentDirectory);
+                if (!(node is T))
+                    throw new ArgumentException($"Invalid path: cannot access {node.Name} as {typeof(T).Name}!");
+
+                result =  node as T;
+                return true;
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                result = null;
+                return false;
+            }
         }
-
-
-        //public static Folder GetCurrentFolder()
-        //{
-        //    return GetCurrentFolderAtDepth(Program.SubfolderIndexPath.Count);
-        //}
-
-        //public static Folder GetCurrentFolderAtDepth(int depth)
-        //{
-        //    var folder = Program.ConnectedDevice.FileSystem.root;
-
-        //    if (Program.SubfolderIndexPath.Count > 0)
-        //    {
-        //        try
-        //        {
-        //            for (int i = 0; i < depth; i++)
-        //            {
-        //                if (folder.Contents.Count > Program.SubfolderIndexPath[i])
-        //                    folder = folder.Contents[Program.SubfolderIndexPath[i]];
-        //            }
-        //        }
-        //        catch { }
-        //    }
-
-        //    return folder;
-        //}
-
-        //public static List<int> GetSubFolderPathFromPath(string path, Folder currentFolder = null)
-        //{
-        //    var list = new List<int>();
-        //    var folder = currentFolder ?? GetCurrentFolder();
-        //    string[] pathSegments = path.Split(new char[] { '/', '\\' });
-
-        //    int num = 0;
-        //    foreach (var pSeg in pathSegments)
-        //    {
-        //        if (pSeg != "" && pSeg != " ")
-        //        {
-        //            if (pSeg == "..")
-        //            {
-        //                list.Add(-1);
-        //                num++;
-        //                folder = GetCurrentFolderAtDepth(Program.SubfolderIndexPath.Count - num);
-        //            }
-        //            else
-        //            {
-        //                bool foundSubFolder = false;
-        //                for (int i = 0; i < folder.Contents.Count; i++)
-        //                {
-        //                    if (folder.Contents[i].name == pSeg)
-        //                    {
-        //                        folder = folder.Contents[i];
-        //                        foundSubFolder = true;
-        //                        list.Add(i);
-        //                        break;
-        //                    }
-        //                }
-
-        //                if (!foundSubFolder)
-        //                {
-        //                    Console.WriteLine("Invalid Path");
-        //                    list.Clear();
-        //                    return list;
-        //                }
-        //            }
-
-        //        }
-        //    }
-
-        //    return list;
-        //}
     }
 }
 

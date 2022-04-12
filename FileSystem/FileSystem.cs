@@ -1,11 +1,8 @@
 ﻿using System;
 using IO = System.IO;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace NewFileSystem
+namespace FileSystem
 {
     public class FileSystem
     {
@@ -19,6 +16,12 @@ namespace NewFileSystem
             Root = new Directory(ROOT_NAME, null);
         }
 
+        public FileSystem(Action<FileSystem> onCreate)
+        {
+            Root = new Directory(ROOT_NAME, null);
+            onCreate?.Invoke(this);
+        }
+
         //  @Incomplete:
         //  Maybe change console write/return null to throws
         //  and eave error handling up to the user?
@@ -26,8 +29,7 @@ namespace NewFileSystem
         {
             if (string.IsNullOrWhiteSpace(path))
             {
-                Console.WriteLine("Invalid path");
-                return null;
+                throw new FormatException("Invalid path");
             }
 
             INodeBase result = null;
@@ -50,11 +52,13 @@ namespace NewFileSystem
                 if(pSeg == "..")
                 {
                     currentDir = currentDir.ParentDirectory ?? currentDir;
+                    result = currentDir;
                     continue;
                 }
                 else if(pSeg == ".")
                 {
-                    //  Stay at current directory, i.e. do nothing
+                    //  Stay at current directory
+                    result = currentDir;
                     continue;
                 }
 
@@ -63,19 +67,8 @@ namespace NewFileSystem
 
                 if(node == null)
                 {
-                    Console.WriteLine("Cannot find path");
-                    return null;
+                    throw new ArgumentException("Cannot find path");
                 }
-
-                //if (node.NodeType == NodeType.File && i != pathSegments.Length - 1)
-                //{
-                //    Console.WriteLine("Invalid path: cannot access file as a directory!");
-                //    return null;
-                //}
-
-                //if (node.NodeType == NodeType.Directory)
-                //    currentDir = node as Directory;
-
 
                 switch (node.NodeType)
                 {
@@ -86,8 +79,7 @@ namespace NewFileSystem
                     case NodeType.File:
                         if(i != pathSegments.Length - 1)
                         {
-                            Console.WriteLine("Invalid path: cannot access file as a directory!");
-                            return null;
+                            throw new FormatException("Invalid path: cannot access file as a directory!");
                         }
                         break;
 
@@ -103,16 +95,7 @@ namespace NewFileSystem
 
         public Directory CreateDirectory(string name, string absolutePath)
         {
-            //  @Incomplete:
-            //  translate path into the correlated directory
-            //  i.e. path = '/bin/goodies/' return 'goodies' directory
-
             var parentDir = Search(absolutePath, Root) as Directory;
-
-            //  create at path and return directory
-            //  i.e. goodies.Contents.Add(new Directory(name, goodies);
-            //  or goodies.CreateChildDirectory(name);
-
             return parentDir.CreateChildDirectory(name);
         }
 

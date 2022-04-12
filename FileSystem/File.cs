@@ -1,4 +1,4 @@
-﻿namespace NewFileSystem
+﻿namespace FileSystem
 {
     public class File : INode<File>
     {

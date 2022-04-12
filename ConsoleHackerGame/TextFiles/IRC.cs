@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConsoleHackerGame.TextFiles
 {
@@ -24,7 +20,7 @@ namespace ConsoleHackerGame.TextFiles
 
         public static string[] IRCLogs = new string[] { elk1,cam1, cam2, mara1 };
 
-        public static void GenerateIRCLog(string data, Files.Folder parentFolder)
+        public static void GenerateIRCLog(string data, FileSystem.Directory parentDir)
         {
             var date = new DateTime
             (
@@ -33,12 +29,22 @@ namespace ConsoleHackerGame.TextFiles
                 Utils.Random.Next(1, 30)       // D
             );
 
-            parentFolder.Contents.Add(new Files.File($"IRC_log_{date.ToShortDateString()}".Replace(' ', '_'), data, parentFolder));
+            parentDir.Contents.Add
+            (
+                new FileSystem.File
+                (
+                    $"IRC_log_{date.ToShortDateString()}"
+                        .Replace(' ', '_')
+                        .Replace('/','-'),
+                    data, 
+                    parentDir
+                )
+            );
         }
 
-        public static void GenerateIRCLog(Files.Folder parentFolder)
+        public static void GenerateIRCLog(FileSystem.Directory parentDir)
         {
-            GenerateIRCLog(IRCLogs[Utils.Random.Next(IRCLogs.Length)], parentFolder);
+            GenerateIRCLog(IRCLogs[Utils.Random.Next(IRCLogs.Length)], parentDir);
         }
     }
 }

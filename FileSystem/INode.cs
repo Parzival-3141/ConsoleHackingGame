@@ -1,7 +1,7 @@
 ﻿//  Based off of the Platform.VirtualFileSystem
 //  https://github.com/platformdotnet/Platform.VirtualFileSystem/blob/master/src/Platform.VirtualFileSystem/INode.cs
 
-namespace NewFileSystem
+namespace FileSystem
 {
 
     /// <summary>
